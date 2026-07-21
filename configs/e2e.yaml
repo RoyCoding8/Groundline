@@ -1,0 +1,43 @@
+name: zz-e2e
+seeds: [3, 7, 11, 17, 23, 31, 41]
+max_concurrency: 2
+scenario:
+  max_ticks: 1
+  shock_tick: 1
+  shock_item_id: api
+  shock_severity: 0.7
+  work_items:
+    - id: api
+      department: Engineering
+      business_value: 1.0
+      effort: 2.0
+      deadline_tick: 1
+organization:
+  agents:
+    - id: exec
+      role: executive
+      department: Executive
+    - id: manager
+      role: manager
+      manager_id: exec
+      department: Engineering
+    - id: worker
+      role: contributor
+      manager_id: manager
+      department: Engineering
+treatments:
+  pressure_low_attention: {incentive_pressure: 0.9, attention_budget: 0}
+  pressure_high_attention: {incentive_pressure: 0.9, attention_budget: 1}
+  no_pressure_low_attention: {incentive_pressure: 0.0, attention_budget: 0}
+  no_pressure_high_attention: {incentive_pressure: 0.0, attention_budget: 1}
+analysis:
+  seed: 20260716
+  missingness: fail_if_missing
+  contrasts:
+    - id: h1-pressure-amplification
+      baseline: no_pressure_low_attention
+      intervention: pressure_low_attention
+      outcome: upward_amplification
+      direction: increase
+      family: co-primary
+      status: confirmatory

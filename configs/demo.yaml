@@ -1,0 +1,210 @@
+name: distortion-engine-demo-v3
+seeds: [7, 13, 29, 47, 71, 101, 127, 151, 181, 211, 241, 277, 307, 347, 389, 431, 463, 499, 541, 577, 613, 653, 691, 733, 773, 811, 853, 887, 929, 971, 1013, 1051]
+max_concurrency: 4
+outcome_specification:
+  escalation_sensitivity_thresholds: [0.5, 2.0]
+scenario:
+  max_ticks: 6
+  shock_tick: 3
+  shock_item_id: api
+  shock_severity: 7.0
+  work_items:
+    - id: launch-spec
+      department: Product
+      business_value: 0.8
+      effort: 5.0
+      deadline_tick: 3
+    - id: api
+      department: Engineering
+      business_value: 1.0
+      effort: 8.0
+      deadline_tick: 5
+      dependencies: [launch-spec]
+    - id: release-gate
+      department: QA
+      business_value: 1.0
+      effort: 5.0
+      deadline_tick: 6
+      dependencies: [api]
+organization:
+  agents:
+    - id: ceo
+      role: executive
+      department: Executive
+      traits: {honesty: 0.55, blame_sensitivity: 0.65}
+      utility_weights: {delivery: 0.9, reputation: 0.8, quality: 0.6}
+    - id: product-director
+      role: manager
+      manager_id: ceo
+      department: Product
+      traits: {honesty: 0.62, blame_sensitivity: 0.72}
+      utility_weights: {delivery: 0.8, reputation: 0.9, quality: 0.5}
+    - id: engineering-director
+      role: manager
+      manager_id: ceo
+      department: Engineering
+      traits: {honesty: 0.52, blame_sensitivity: 0.82}
+      utility_weights: {delivery: 0.95, reputation: 0.9, quality: 0.55}
+    - id: qa-director
+      role: manager
+      manager_id: ceo
+      department: QA
+      traits: {honesty: 0.78, blame_sensitivity: 0.55}
+      utility_weights: {delivery: 0.45, reputation: 0.65, quality: 1.0}
+    - id: researcher
+      role: contributor
+      manager_id: product-director
+      department: Product
+      skills: {discovery: 0.9, prioritization: 0.55}
+      traits: {honesty: 0.75, blame_sensitivity: 0.45}
+      utility_weights: {delivery: 0.55, reputation: 0.6, quality: 0.7}
+    - id: product-owner
+      role: contributor
+      manager_id: product-director
+      department: Product
+      skills: {prioritization: 0.9, discovery: 0.5}
+      traits: {honesty: 0.55, blame_sensitivity: 0.72}
+      utility_weights: {delivery: 0.85, reputation: 0.85, quality: 0.5}
+    - id: designer
+      role: contributor
+      manager_id: product-director
+      department: Product
+      skills: {design: 0.92, discovery: 0.6}
+      traits: {honesty: 0.7, blame_sensitivity: 0.5}
+      utility_weights: {delivery: 0.55, reputation: 0.7, quality: 0.8}
+    - id: backend-engineer
+      role: contributor
+      manager_id: engineering-director
+      department: Engineering
+      skills: {backend: 0.95, reliability: 0.65}
+      traits: {honesty: 0.6, blame_sensitivity: 0.7}
+      utility_weights: {delivery: 0.9, reputation: 0.72, quality: 0.6}
+    - id: platform-engineer
+      role: contributor
+      manager_id: engineering-director
+      department: Engineering
+      skills: {platform: 0.9, reliability: 0.8}
+      traits: {honesty: 0.72, blame_sensitivity: 0.6}
+      utility_weights: {delivery: 0.75, reputation: 0.7, quality: 0.8}
+    - id: frontend-engineer
+      role: contributor
+      manager_id: engineering-director
+      department: Engineering
+      skills: {frontend: 0.94, integration: 0.6}
+      traits: {honesty: 0.5, blame_sensitivity: 0.8}
+      utility_weights: {delivery: 0.92, reputation: 0.88, quality: 0.52}
+    - id: qa-analyst
+      role: contributor
+      manager_id: qa-director
+      department: QA
+      skills: {defect_detection: 0.95, testing: 0.9}
+      traits: {honesty: 0.86, blame_sensitivity: 0.45}
+      utility_weights: {delivery: 0.4, reputation: 0.65, quality: 1.0}
+    - id: reliability-tester
+      role: contributor
+      manager_id: qa-director
+      department: QA
+      skills: {defect_detection: 0.85, reliability: 0.92}
+      traits: {honesty: 0.82, blame_sensitivity: 0.52}
+      utility_weights: {delivery: 0.42, reputation: 0.6, quality: 0.95}
+    - id: release-tester
+      role: contributor
+      manager_id: qa-director
+      department: QA
+      skills: {defect_detection: 0.78, release: 0.95}
+      traits: {honesty: 0.66, blame_sensitivity: 0.68}
+      utility_weights: {delivery: 0.62, reputation: 0.72, quality: 0.88}
+treatments:
+  pressure_low_attention: {incentive_pressure: 0.9, attention_budget: 0}
+  pressure_high_attention: {incentive_pressure: 0.9, attention_budget: 3}
+  no_pressure_low_attention: {incentive_pressure: 0.0, attention_budget: 0}
+  no_pressure_high_attention: {incentive_pressure: 0.0, attention_budget: 3}
+analysis:
+  seed: 20260716
+  missingness: fail_if_missing
+  contrasts:
+    - id: h1-pressure-amplification
+      baseline: no_pressure_low_attention
+      intervention: pressure_low_attention
+      outcome: upward_amplification
+      direction: increase
+      family: co-primary
+      status: confirmatory
+    - id: h2-incentive-ablation
+      baseline: pressure_high_attention
+      intervention: no_pressure_high_attention
+      outcome: executive_optimism_bias_adverse_mean
+      direction: decrease
+      family: co-primary
+      status: confirmatory
+    - id: h3-verification-capacity
+      baseline: pressure_low_attention
+      intervention: pressure_high_attention
+      outcome: executive_absolute_error_adverse_mean
+      direction: decrease
+      family: confirmatory-secondary
+      status: confirmatory
+    - id: h6-oracle-regret
+      baseline: no_pressure_high_attention
+      intervention: pressure_low_attention
+      outcome: oracle_regret
+      direction: increase
+      family: confirmatory-secondary
+      status: confirmatory
+    - id: vector-loss-pressure
+      baseline: no_pressure_low_attention
+      intervention: pressure_low_attention
+      outcome: executive_vector_loss_adverse_mean
+      direction: increase
+      family: secondary-epistemic
+      status: exploratory
+    - id: escalation-delay-pressure
+      baseline: no_pressure_low_attention
+      intervention: pressure_low_attention
+      outcome: escalation_delay_mean
+      direction: increase
+      family: secondary-epistemic
+      status: exploratory
+  sensitivities:
+    - id: h1-pre-release
+      contrast_id: h1-pressure-amplification
+      kind: exclude_post_release_ticks
+    - id: h2-all-ticks
+      contrast_id: h2-incentive-ablation
+      kind: adverse_vs_all_ticks
+    - id: h2-median
+      contrast_id: h2-incentive-ablation
+      kind: mean_vs_median
+    - id: h2-pre-release
+      contrast_id: h2-incentive-ablation
+      kind: exclude_post_release_ticks
+    - id: h2-valid-responses-only
+      contrast_id: h2-incentive-ablation
+      kind: exclude_invalid_or_refused
+      missingness: complete_case
+    - id: vector-equal-weights
+      contrast_id: vector-loss-pressure
+      kind: equal_health_dimension_weights
+    - id: vector-progress-only
+      contrast_id: vector-loss-pressure
+      kind: progress_dimension_only
+    - id: vector-quality-only
+      contrast_id: vector-loss-pressure
+      kind: quality_dimension_only
+    - id: vector-schedule-only
+      contrast_id: vector-loss-pressure
+      kind: schedule_dimension_only
+    - id: vector-reliability-only
+      contrast_id: vector-loss-pressure
+      kind: reliability_dimension_only
+    - id: vector-pre-release
+      contrast_id: vector-loss-pressure
+      kind: exclude_post_release_ticks
+    - id: escalation-threshold-low
+      contrast_id: escalation-delay-pressure
+      kind: alternative_escalation_threshold
+      threshold: 0.5
+    - id: escalation-threshold-high
+      contrast_id: escalation-delay-pressure
+      kind: alternative_escalation_threshold
+      threshold: 2.0

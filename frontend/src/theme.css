@@ -1,0 +1,405 @@
+/* ============================================================
+   The Distortion Engine — MD3 Theme Tokens
+   ============================================================ */
+
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap");
+
+/* ============================================================
+   LIGHT THEME (default)
+   ============================================================ */
+:root {
+  /* --- Primary --- */
+  --md3-primary: #1A73E8;
+  --md3-on-primary: #FFFFFF;
+  --md3-primary-container: #D3E3FD;
+  --md3-on-primary-container: #041E49;
+
+  /* --- Surface --- */
+  --md3-surface: #FAFBFC;
+  --md3-surface-dim: #DADCE0;
+  --md3-surface-container: #FFFFFF;
+  --md3-surface-container-high: #F1F3F4;
+
+  /* --- On-Surface --- */
+  --md3-on-surface: #1F1F1F;
+  --md3-on-surface-variant: #5F6368;
+
+  /* --- Outline --- */
+  --md3-outline: #747775;
+  --md3-outline-variant: #C4C7C5;
+
+  /* --- Error --- */
+  --md3-error: #D93025;
+  --md3-on-error: #FFFFFF;
+  --md3-error-container: #FCE8E6;
+  --md3-on-error-container: #410002;
+
+  /* --- Data Series --- */
+  --md3-data-truth: #1A73E8;
+  --md3-data-belief: #EA4335;
+  --md3-data-neutral: #5F6368;
+  --md3-data-accent: #34A853;
+
+  /* --- Elevation Shadows --- */
+  --md3-elevation-1:
+    0 1px 2px rgba(0, 0, 0, 0.1),
+    0 1px 3px 1px rgba(0, 0, 0, 0.06);
+  --md3-elevation-2:
+    0 1px 2px rgba(0, 0, 0, 0.1),
+    0 2px 6px 2px rgba(0, 0, 0, 0.08);
+  --md3-elevation-3:
+    0 4px 8px 3px rgba(0, 0, 0, 0.08),
+    0 1px 3px rgba(0, 0, 0, 0.1);
+
+  /* --- Typography Scale --- */
+  --md3-type-display: 600 2.25rem/2.75rem "Inter", sans-serif;
+  --md3-type-headline: 600 1.75rem/2.25rem "Inter", sans-serif;
+  --md3-type-title: 600 1rem/1.5rem "Inter", sans-serif;
+  --md3-type-body: 400 0.875rem/1.5rem "Inter", sans-serif;
+  --md3-type-label: 500 0.75rem/1rem "Inter", sans-serif;
+  --md3-type-data: 500 0.875rem/1.5rem "JetBrains Mono", monospace;
+
+  /* --- Shape Scale --- */
+  --md3-shape-xs: 4px;
+  --md3-shape-sm: 8px;
+  --md3-shape-md: 12px;
+  --md3-shape-lg: 16px;
+  --md3-shape-xl: 28px;
+
+  /* --- Transitions --- */
+  --md3-motion-easing-standard: cubic-bezier(0.2, 0, 0, 1);
+  --md3-motion-easing-emphasized: cubic-bezier(0.2, 0, 0, 1);
+  --md3-motion-duration-short: 150ms;
+  --md3-motion-duration-medium: 300ms;
+  --md3-motion-duration-long: 500ms;
+}
+
+/* ============================================================
+   DARK THEME (explicit attribute override)
+   ============================================================ */
+[data-theme="dark"] {
+  /* --- Primary --- */
+  --md3-primary: #8AB4F8;
+  --md3-on-primary: #062E6F;
+  --md3-primary-container: #004A93;
+  --md3-on-primary-container: #D3E3FD;
+
+  /* --- Surface --- */
+  --md3-surface: #1C1B1F;
+  --md3-surface-dim: #141316;
+  --md3-surface-container: #211F26;
+  --md3-surface-container-high: #2B2930;
+
+  /* --- On-Surface --- */
+  --md3-on-surface: #E6E1E5;
+  --md3-on-surface-variant: #CAC4D0;
+
+  /* --- Outline --- */
+  --md3-outline: #938F99;
+  --md3-outline-variant: #49454F;
+
+  /* --- Error --- */
+  --md3-error: #F28B82;
+  --md3-on-error: #601410;
+  --md3-error-container: #8C1D18;
+  --md3-on-error-container: #FECDD3;
+
+  /* --- Data Series (brighter for dark backgrounds) --- */
+  --md3-data-truth: #8AB4F8;
+  --md3-data-belief: #F28B82;
+  --md3-data-neutral: #CAC4D0;
+  --md3-data-accent: #81C995;
+
+  /* --- Elevation Shadows (adjusted for dark theme) --- */
+  --md3-elevation-1:
+    0 1px 3px 1px rgba(0, 0, 0, 0.3),
+    0 1px 2px rgba(0, 0, 0, 0.5);
+  --md3-elevation-2:
+    0 2px 6px 2px rgba(0, 0, 0, 0.3),
+    0 1px 2px rgba(0, 0, 0, 0.5);
+  --md3-elevation-3:
+    0 4px 8px 3px rgba(0, 0, 0, 0.3),
+    0 1px 3px rgba(0, 0, 0, 0.5);
+
+  /* --- Typography Scale (same families, lighter weights for dark) --- */
+  --md3-type-display: 600 2.25rem/2.75rem "Inter", sans-serif;
+  --md3-type-headline: 600 1.75rem/2.25rem "Inter", sans-serif;
+  --md3-type-title: 600 1rem/1.5rem "Inter", sans-serif;
+  --md3-type-body: 400 0.875rem/1.5rem "Inter", sans-serif;
+  --md3-type-label: 500 0.75rem/1rem "Inter", sans-serif;
+  --md3-type-data: 500 0.875rem/1.5rem "JetBrains Mono", monospace;
+
+  /* --- Shape Scale --- */
+  --md3-shape-xs: 4px;
+  --md3-shape-sm: 8px;
+  --md3-shape-md: 12px;
+  --md3-shape-lg: 16px;
+  --md3-shape-xl: 28px;
+}
+
+/* ============================================================
+   SYSTEM PREFERENCE FALLBACK
+   When no [data-theme] attribute is set, respect the OS.
+   ============================================================ */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    /* --- Primary --- */
+    --md3-primary: #8AB4F8;
+    --md3-on-primary: #062E6F;
+    --md3-primary-container: #004A93;
+    --md3-on-primary-container: #D3E3FD;
+
+    /* --- Surface --- */
+    --md3-surface: #1C1B1F;
+    --md3-surface-dim: #141316;
+    --md3-surface-container: #211F26;
+    --md3-surface-container-high: #2B2930;
+
+    /* --- On-Surface --- */
+    --md3-on-surface: #E6E1E5;
+    --md3-on-surface-variant: #CAC4D0;
+
+    /* --- Outline --- */
+    --md3-outline: #938F99;
+    --md3-outline-variant: #49454F;
+
+    /* --- Error --- */
+    --md3-error: #F28B82;
+    --md3-on-error: #601410;
+    --md3-error-container: #8C1D18;
+    --md3-on-error-container: #FECDD3;
+
+    /* --- Data Series --- */
+    --md3-data-truth: #8AB4F8;
+    --md3-data-belief: #F28B82;
+    --md3-data-neutral: #CAC4D0;
+    --md3-data-accent: #81C995;
+
+    /* --- Elevation Shadows --- */
+    --md3-elevation-1:
+      0 1px 3px 1px rgba(0, 0, 0, 0.3),
+      0 1px 2px rgba(0, 0, 0, 0.5);
+    --md3-elevation-2:
+      0 2px 6px 2px rgba(0, 0, 0, 0.3),
+      0 1px 2px rgba(0, 0, 0, 0.5);
+    --md3-elevation-3:
+      0 4px 8px 3px rgba(0, 0, 0, 0.3),
+      0 1px 3px rgba(0, 0, 0, 0.5);
+  }
+}
+
+/* ============================================================
+   GLOBAL RESETS & BASE STYLES
+   ============================================================ */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100dvh;
+  min-width: 320px;
+  font-family: "Inter", system-ui, -apple-system, sans-serif;
+  background: var(--md3-surface);
+  color: var(--md3-on-surface);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  transition: background-color var(--md3-motion-duration-medium) var(--md3-motion-easing-standard),
+              color var(--md3-motion-duration-medium) var(--md3-motion-easing-standard);
+}
+
+button, select, input, textarea {
+  font: inherit;
+  color: inherit;
+}
+
+/* ============================================================
+   UTILITY CLASSES — Surfaces
+   ============================================================ */
+.surface {
+  background: var(--md3-surface);
+  color: var(--md3-on-surface);
+}
+
+.surface-container {
+  background: var(--md3-surface-container);
+  color: var(--md3-on-surface);
+}
+
+.surface-container-high {
+  background: var(--md3-surface-container-high);
+  color: var(--md3-on-surface);
+}
+
+.surface-dim {
+  background: var(--md3-surface-dim);
+  color: var(--md3-on-surface);
+}
+
+.surface-elevated {
+  background: var(--md3-surface-container);
+  color: var(--md3-on-surface);
+  box-shadow: var(--md3-elevation-2);
+  border-radius: var(--md3-shape-md);
+}
+
+.surface-elevated-1 {
+  background: var(--md3-surface-container);
+  color: var(--md3-on-surface);
+  box-shadow: var(--md3-elevation-1);
+  border-radius: var(--md3-shape-sm);
+}
+
+.surface-elevated-3 {
+  background: var(--md3-surface-container);
+  color: var(--md3-on-surface);
+  box-shadow: var(--md3-elevation-3);
+  border-radius: var(--md3-shape-lg);
+}
+
+/* ============================================================
+   UTILITY CLASSES — Typography
+   ============================================================ */
+.type-display {
+  font: var(--md3-type-display);
+  letter-spacing: -0.02em;
+  color: var(--md3-on-surface);
+}
+
+.type-headline {
+  font: var(--md3-type-headline);
+  letter-spacing: -0.01em;
+  color: var(--md3-on-surface);
+}
+
+.type-title {
+  font: var(--md3-type-title);
+  letter-spacing: 0;
+  color: var(--md3-on-surface);
+}
+
+.type-body {
+  font: var(--md3-type-body);
+  letter-spacing: 0.01em;
+  color: var(--md3-on-surface);
+}
+
+.type-label {
+  font: var(--md3-type-label);
+  letter-spacing: 0.02em;
+  color: var(--md3-on-surface-variant);
+}
+
+.type-data {
+  font: var(--md3-type-data);
+  letter-spacing: 0;
+  color: var(--md3-on-surface);
+}
+
+/* ============================================================
+   UTILITY CLASSES — Semantic Colors
+   ============================================================ */
+.text-primary {
+  color: var(--md3-primary);
+}
+
+.text-on-primary {
+  color: var(--md3-on-primary);
+}
+
+.text-on-surface {
+  color: var(--md3-on-surface);
+}
+
+.text-on-surface-variant {
+  color: var(--md3-on-surface-variant);
+}
+
+.text-outline {
+  color: var(--md3-outline);
+}
+
+.text-error {
+  color: var(--md3-error);
+}
+
+.bg-primary {
+  background: var(--md3-primary);
+}
+
+.bg-primary-container {
+  background: var(--md3-primary-container);
+}
+
+.bg-error-container {
+  background: var(--md3-error-container);
+}
+
+.bg-surface-container {
+  background: var(--md3-surface-container);
+}
+
+/* ============================================================
+   UTILITY CLASSES — Data Series
+   ============================================================ */
+.data-truth {
+  color: var(--md3-data-truth);
+}
+
+.data-belief {
+  color: var(--md3-data-belief);
+}
+
+.data-neutral {
+  color: var(--md3-data-neutral);
+}
+
+.data-accent {
+  color: var(--md3-data-accent);
+}
+
+/* ============================================================
+   UTILITY CLASSES — Shape & Elevation
+   ============================================================ */
+.rounded-xs { border-radius: var(--md3-shape-xs); }
+.rounded-sm { border-radius: var(--md3-shape-sm); }
+.rounded-md { border-radius: var(--md3-shape-md); }
+.rounded-lg { border-radius: var(--md3-shape-lg); }
+.rounded-xl { border-radius: var(--md3-shape-xl); }
+
+.elevation-1 { box-shadow: var(--md3-elevation-1); }
+.elevation-2 { box-shadow: var(--md3-elevation-2); }
+.elevation-3 { box-shadow: var(--md3-elevation-3); }
+
+/* ============================================================
+   UTILITY CLASSES — Borders & Dividers
+   ============================================================ */
+.border-outline {
+  border: 1px solid var(--md3-outline);
+}
+
+.border-outline-variant {
+  border: 1px solid var(--md3-outline-variant);
+}
+
+.divider {
+  border: none;
+  border-top: 1px solid var(--md3-outline-variant);
+  margin: 0;
+}
+
+/* ============================================================
+   REDUCED MOTION
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

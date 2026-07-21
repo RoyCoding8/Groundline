@@ -3,7 +3,7 @@ import math
 import pandas as pd
 import pytest
 
-from distortion_engine.statistics.inference import (
+from groundline.statistics.inference import (
     PairedAnalyzer,
     adjust_holm,
     aggregate_seed_outcomes,

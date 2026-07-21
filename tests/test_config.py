@@ -11,45 +11,45 @@ from __future__ import annotations
 import os
 from pathlib import Path
 
-from distortion_engine.config import load_env
+from groundline.config import load_env
 
 
 def test_load_env_reads_dotenv_when_unset(tmp_path: Path, monkeypatch) -> None:
     monkeypatch.chdir(tmp_path)
-    monkeypatch.delenv("DISTORTION_MODEL", raising=False)
-    (tmp_path / ".env").write_text("DISTORTION_MODEL=from-file\n", encoding="utf-8")
+    monkeypatch.delenv("GROUNDLINE_MODEL", raising=False)
+    (tmp_path / ".env").write_text("GROUNDLINE_MODEL=from-file\n", encoding="utf-8")
 
     load_env()
 
-    assert os.environ["DISTORTION_MODEL"] == "from-file"
+    assert os.environ["GROUNDLINE_MODEL"] == "from-file"
 
 
 def test_load_env_real_env_wins_over_file(tmp_path: Path, monkeypatch) -> None:
     monkeypatch.chdir(tmp_path)
-    monkeypatch.setenv("DISTORTION_MODEL", "from-shell")
-    (tmp_path / ".env").write_text("DISTORTION_MODEL=from-file\n", encoding="utf-8")
+    monkeypatch.setenv("GROUNDLINE_MODEL", "from-shell")
+    (tmp_path / ".env").write_text("GROUNDLINE_MODEL=from-file\n", encoding="utf-8")
 
     load_env()
 
-    assert os.environ["DISTORTION_MODEL"] == "from-shell"
+    assert os.environ["GROUNDLINE_MODEL"] == "from-shell"
 
 
 def test_load_env_missing_dotenv_is_not_an_error(tmp_path: Path, monkeypatch) -> None:
     monkeypatch.chdir(tmp_path)
-    monkeypatch.delenv("DISTORTION_MODEL", raising=False)
+    monkeypatch.delenv("GROUNDLINE_MODEL", raising=False)
     assert not (tmp_path / ".env").exists()
 
     load_env()  # must not raise
 
-    assert "DISTORTION_MODEL" not in os.environ
+    assert "GROUNDLINE_MODEL" not in os.environ
 
 
 def test_load_env_is_idempotent(tmp_path: Path, monkeypatch) -> None:
     monkeypatch.chdir(tmp_path)
-    monkeypatch.setenv("DISTORTION_MODEL", "from-shell")
-    (tmp_path / ".env").write_text("DISTORTION_MODEL=from-file\n", encoding="utf-8")
+    monkeypatch.setenv("GROUNDLINE_MODEL", "from-shell")
+    (tmp_path / ".env").write_text("GROUNDLINE_MODEL=from-file\n", encoding="utf-8")
 
     load_env()
     load_env()  # second call must not clobber the shell value
 
-    assert os.environ["DISTORTION_MODEL"] == "from-shell"
+    assert os.environ["GROUNDLINE_MODEL"] == "from-shell"

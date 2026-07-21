@@ -1,7 +1,7 @@
-from distortion_engine.observation.engine import ObservationEngine
-from distortion_engine.organization.models import AgentConfig
-from distortion_engine.world.engine import WorldEngine
-from distortion_engine.world.models import ActorAction, ScenarioConfig, WorkItemConfig, WorldAction
+from groundline.observation.engine import ObservationEngine
+from groundline.organization.models import AgentConfig
+from groundline.world.engine import WorldEngine
+from groundline.world.models import ActorAction, ScenarioConfig, WorkItemConfig, WorldAction
 
 
 def test_departments_receive_distinct_scoped_evidence_without_world_state() -> None:

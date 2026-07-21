@@ -7,8 +7,8 @@ from pathlib import Path
 
 import pytest
 
-from distortion_engine.policy.cache import FileDecisionCache
-from distortion_engine.policy.factory import _cache_partition_key, build_policy
+from groundline.policy.cache import FileDecisionCache
+from groundline.policy.factory import _cache_partition_key, build_policy
 
 # ---------------------------------------------------------------------------
 # 1. Windows-safe filenames
@@ -95,9 +95,9 @@ class TestCachePartitionRecordLockedEquality:
 
     def test_record_and_locked_same_filename(self, tmp_path: Path) -> None:
         env = {
-            "DISTORTION_MODEL": "test-model",
-            "DISTORTION_API_BASE": "",
-            "DISTORTION_API_KEY": "",
+            "GROUNDLINE_MODEL": "test-model",
+            "GROUNDLINE_API_BASE": "",
+            "GROUNDLINE_API_KEY": "",
         }
         with pytest.MonkeyPatch.context() as mp:
             for k, v in env.items():

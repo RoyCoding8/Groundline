@@ -1,6 +1,6 @@
 # Groundline
 
-A causal evaluation environment for hierarchical language-agent organizations. A deterministic operational world computes business truth. Persistent employees receive scoped evidence, take permitted actions, and decide what to report upward. The repository and Python package retain the working name `distortion-engine`.
+A causal evaluation environment for hierarchical language-agent organizations. A deterministic operational world computes business truth. Persistent employees receive scoped evidence, take permitted actions, and decide what to report upward. The repository and Python package retain the working name `groundline`.
 
 The narrow research claim is not "LLMs can simulate a company." It is that hierarchical reporting can be treated as a causal, replayable measurement problem: keep world randomness fixed, intervene on organizational conditions, and estimate how information changes as it climbs.
 
@@ -29,8 +29,8 @@ Prerequisites: Python 3.13, `uv`, Node 24, and npm.
 uv sync
 npm --prefix frontend install
 npm --prefix frontend run build
-uv run distortion experiment --config configs/demo.yaml --artifacts artifacts
-uv run distortion serve --artifacts artifacts
+uv run groundline experiment --config configs/demo.yaml --artifacts artifacts
+uv run groundline serve --artifacts artifacts
 ```
 
 Open `http://127.0.0.1:8000`. The backend serves the artifact API and compiled interface. The operator controls launch fresh 2×2 paired intervention matrices; SQLite-backed job progress and expired-lease recovery are exposed through the same API.
@@ -39,7 +39,7 @@ A normal wheel build runs the frontend build and packages the compiled same-orig
 
 ```powershell
 uv build --wheel
-uv pip install dist/distortion_engine-*.whl
+uv pip install dist/groundline-*.whl
 ```
 
 The demo experiment is a general rooted tree with 13 persistent employees: nine contributors, three department directors, and one executive across Product, Engineering, and QA. The topology engine also accepts deeper, unbalanced trees.
@@ -47,22 +47,22 @@ The demo experiment is a general rooted tree with 13 persistent employees: nine 
 ## Run one company trajectory
 
 ```powershell
-uv run distortion run --config configs/demo.yaml --seed 7 --policy fixture
+uv run groundline run --config configs/demo.yaml --seed 7 --policy fixture
 ```
 
 Use GPT-5.6, or another language model exposed through an OpenAI-compatible chat-completions endpoint, as the employee policy. Configure the bare model name, base URL, and API key in a `.env` file (see `.env.example`) or export them as environment variables — real environment variables take precedence over the file:
 
 ```powershell
 # .env
-DISTORTION_MODEL=gpt-5.6
-DISTORTION_API_BASE=https://api.openai.com/v1
-DISTORTION_API_KEY=your-key
+GROUNDLINE_MODEL=gpt-5.6
+GROUNDLINE_API_BASE=https://api.openai.com/v1
+GROUNDLINE_API_KEY=your-key
 
 # Record mode captures unseen decisions from the provider:
-uv run distortion run --config configs/demo.yaml --seed 7 --policy record --artifacts artifacts
+uv run groundline run --config configs/demo.yaml --seed 7 --policy record --artifacts artifacts
 
-# Any OpenAI-compatible endpoint works the same way — set DISTORTION_API_BASE
-# to its URL and DISTORTION_MODEL to a bare model name. Providers without a
+# Any OpenAI-compatible endpoint works the same way — set GROUNDLINE_API_BASE
+# to its URL and GROUNDLINE_MODEL to a bare model name. Providers without a
 # native OpenAI-compatible surface (e.g. AWS Bedrock) must be reached through
 # an OpenAI-compatible proxy.
 ```
@@ -71,10 +71,10 @@ Live decisions request JSON-object structured output, receive no hidden world st
 
 ```powershell
 # After a record run, replay works with zero provider credentials:
-uv run distortion replay artifacts/<run-id>
+uv run groundline replay artifacts/<run-id>
 
 # Or re-run with locked mode — no network call, fails on unseen context:
-uv run distortion run --config configs/demo.yaml --seed 7 --policy locked --model gpt-5.6 --artifacts artifacts
+uv run groundline run --config configs/demo.yaml --seed 7 --policy locked --model gpt-5.6 --artifacts artifacts
 ```
 
 ## Artifact contract
@@ -107,16 +107,16 @@ npm --prefix frontend run test:e2e
 
 | Module | Responsibility |
 |---|---|
-| [`world/engine.py`](src/distortion_engine/world/engine.py) | Deterministic authoritative business state |
-| [`organization/models.py`](src/distortion_engine/organization/models.py) | Arbitrary reporting-tree validation and derived topology |
-| [`observation/engine.py`](src/distortion_engine/observation/engine.py) | Scoped local evidence and manager verification |
-| [`openai_compat_policy.py`](src/distortion_engine/policy/openai_compat_policy.py) | GPT-5.6/OpenAI-compatible structured decisions, retries, and record/locked behavior |
-| [`simulation/runner.py`](src/distortion_engine/simulation/runner.py) | Tick, report, action, consequence, and metric orchestration |
-| [`events/store.py`](src/distortion_engine/events/store.py) | Canonical event ledger and finalized artifact manifest |
-| [`replay/engine.py`](src/distortion_engine/replay/engine.py) | Zero-network reconstruction and equivalence checks |
-| [`experiments/runner.py`](src/distortion_engine/experiments/runner.py) | Paired intervention execution, resume, recovery, and exports |
-| [`statistics/inference.py`](src/distortion_engine/statistics/inference.py) | Seed-level causal inference and sensitivity analysis |
-| [`api/app.py`](src/distortion_engine/api/app.py) | Artifact queries, experiment jobs, and compiled control-room hosting |
+| [`world/engine.py`](src/groundline/world/engine.py) | Deterministic authoritative business state |
+| [`organization/models.py`](src/groundline/organization/models.py) | Arbitrary reporting-tree validation and derived topology |
+| [`observation/engine.py`](src/groundline/observation/engine.py) | Scoped local evidence and manager verification |
+| [`openai_compat_policy.py`](src/groundline/policy/openai_compat_policy.py) | GPT-5.6/OpenAI-compatible structured decisions, retries, and record/locked behavior |
+| [`simulation/runner.py`](src/groundline/simulation/runner.py) | Tick, report, action, consequence, and metric orchestration |
+| [`events/store.py`](src/groundline/events/store.py) | Canonical event ledger and finalized artifact manifest |
+| [`replay/engine.py`](src/groundline/replay/engine.py) | Zero-network reconstruction and equivalence checks |
+| [`experiments/runner.py`](src/groundline/experiments/runner.py) | Paired intervention execution, resume, recovery, and exports |
+| [`statistics/inference.py`](src/groundline/statistics/inference.py) | Seed-level causal inference and sensitivity analysis |
+| [`api/app.py`](src/groundline/api/app.py) | Artifact queries, experiment jobs, and compiled control-room hosting |
 
 ## LICENSE 
 Apache 2.0

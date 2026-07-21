@@ -6,6 +6,8 @@ test("runs an intervention through the real API and inspects its evidence", asyn
 
   await expect(page.getByText("LEDGER VERIFIED")).toBeVisible();
   await expect(page.getByText("WORLD TRUTH / EXECUTIVE BELIEF")).toBeVisible();
+  await expect(page.getByText("AGENT DECISIONS")).toBeVisible();
+  await expect(page.locator(".decision-card").first()).toBeVisible();
   await page.getByLabel("Evidence department").selectOption("Engineering");
   await expect(page.locator(".evidence-list li").first()).toBeVisible();
 

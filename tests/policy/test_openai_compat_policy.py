@@ -9,11 +9,11 @@ from typing import Any
 import httpx
 import pytest
 
-from distortion_engine.observation.engine import Observation
-from distortion_engine.organization.models import AgentConfig
-from distortion_engine.policy.cache import FileDecisionCache
-from distortion_engine.policy.models import AgentContext
-from distortion_engine.policy.openai_compat_policy import (
+from groundline.observation.engine import Observation
+from groundline.organization.models import AgentConfig
+from groundline.policy.cache import FileDecisionCache
+from groundline.policy.models import AgentContext
+from groundline.policy.openai_compat_policy import (
     INSTRUCTIONS,
     DecisionCacheMiss,
     OpenAICompatPolicy,
@@ -22,14 +22,14 @@ from distortion_engine.policy.openai_compat_policy import (
     _Message,
     _OpenAIResponse,
 )
-from distortion_engine.world.models import OperationalHealth
+from groundline.world.models import OperationalHealth
 
 
 @pytest.fixture(autouse=True)
 def _zero_retry_backoff(monkeypatch: pytest.MonkeyPatch) -> None:
     # Default the retry backoff to 0 for the suite so the retry-path tests
     # don't sleep. Dedicated backoff tests opt back in by setting the env.
-    monkeypatch.setenv("DISTORTION_RETRY_BACKOFF_SECONDS", "0")
+    monkeypatch.setenv("GROUNDLINE_RETRY_BACKOFF_SECONDS", "0")
 
 
 # ---------------------------------------------------------------------------
@@ -710,7 +710,7 @@ async def test_policy_retries_with_backoff_between_attempts(
     # exhaust max_attempts. This is the mock-invisible behavior fixed here:
     # mock-based tests always succeed on attempt 1, so a missing backoff never
     # surfaced offline.
-    monkeypatch.setenv("DISTORTION_RETRY_BACKOFF_SECONDS", "0.5")
+    monkeypatch.setenv("GROUNDLINE_RETRY_BACKOFF_SECONDS", "0.5")
     ise = httpx.HTTPStatusError(
         message="internal error",
         request=httpx.Request("POST", "http://x"),
@@ -728,7 +728,7 @@ async def test_policy_retries_with_backoff_between_attempts(
     async def _spy_sleep(delay: float) -> None:
         sleeps.append(delay)
 
-    monkeypatch.setattr("distortion_engine.policy.openai_compat_policy._async_sleep", _spy_sleep)
+    monkeypatch.setattr("groundline.policy.openai_compat_policy._async_sleep", _spy_sleep)
     decision = await policy.decide(_make_context())
 
     assert len(completion.calls) == 2  # failed once, then succeeded
@@ -743,13 +743,13 @@ async def test_policy_backoff_does_not_sleep_before_first_call(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     # No sleep before attempt 0; backoff only gates retries.
-    monkeypatch.setenv("DISTORTION_RETRY_BACKOFF_SECONDS", "0.5")
+    monkeypatch.setenv("GROUNDLINE_RETRY_BACKOFF_SECONDS", "0.5")
     sleeps: list[float] = []
 
     async def _spy_sleep(delay: float) -> None:
         sleeps.append(delay)
 
-    monkeypatch.setattr("distortion_engine.policy.openai_compat_policy._async_sleep", _spy_sleep)
+    monkeypatch.setattr("groundline.policy.openai_compat_policy._async_sleep", _spy_sleep)
     completion = _FakeCompletion([_success_response()])
     policy = OpenAICompatPolicy(model="gpt-4o", completion=completion, max_attempts=3)
 
@@ -759,8 +759,8 @@ async def test_policy_backoff_does_not_sleep_before_first_call(
 
 @pytest.mark.asyncio
 async def test_policy_backoff_is_env_tunable_to_zero(monkeypatch: pytest.MonkeyPatch) -> None:
-    # DISTORTION_RETRY_BACKOFF_SECONDS=0 -> no delay, determinism for tests.
-    monkeypatch.setenv("DISTORTION_RETRY_BACKOFF_SECONDS", "0")
+    # GROUNDLINE_RETRY_BACKOFF_SECONDS=0 -> no delay, determinism for tests.
+    monkeypatch.setenv("GROUNDLINE_RETRY_BACKOFF_SECONDS", "0")
     ise = httpx.HTTPStatusError(
         message="internal error",
         request=httpx.Request("POST", "http://x"),
@@ -777,7 +777,7 @@ async def test_policy_backoff_is_env_tunable_to_zero(monkeypatch: pytest.MonkeyP
     async def _spy_sleep(delay: float) -> None:
         sleeps.append(delay)
 
-    monkeypatch.setattr("distortion_engine.policy.openai_compat_policy._async_sleep", _spy_sleep)
+    monkeypatch.setattr("groundline.policy.openai_compat_policy._async_sleep", _spy_sleep)
     await policy.decide(_make_context())
     assert len(completion.calls) == 2
     # With base 0, every backoff delay is 0 (and there is one sleep before the retry).
@@ -792,7 +792,7 @@ async def test_policy_survives_clustered_transient_failures(
     # recovers. With backoff + max_attempts>=3 the run completes; the prior
     # zero-delay max_attempts=2 policy aborted. (Live mimic: mimops free
     # endpoint intermittently returns 500 ~1-in-5.)
-    monkeypatch.setenv("DISTORTION_RETRY_BACKOFF_SECONDS", "0.1")
+    monkeypatch.setenv("GROUNDLINE_RETRY_BACKOFF_SECONDS", "0.1")
     ise = httpx.HTTPStatusError(
         message="internal error",
         request=httpx.Request("POST", "http://x"),
@@ -802,7 +802,7 @@ async def test_policy_survives_clustered_transient_failures(
     async def _spy_sleep(delay: float) -> None:
         await asyncio.sleep(0)
 
-    monkeypatch.setattr("distortion_engine.policy.openai_compat_policy._async_sleep", _spy_sleep)
+    monkeypatch.setattr("groundline.policy.openai_compat_policy._async_sleep", _spy_sleep)
     completion = _FakeCompletion([ise, ise, _success_response()])
     policy = OpenAICompatPolicy(
         model="gpt-4o",
@@ -820,11 +820,11 @@ async def test_policy_schema_debug_capture_when_env_set(
     monkeypatch: pytest.MonkeyPatch, tmp_path: Path
 ) -> None:
     # The env-gated diagnostic seam: on schema failure with
-    # DISTORTION_DEBUG_SCHEMA=1, the raw content is written to tmp/ so live
+    # GROUNDLINE_DEBUG_SCHEMA=1, the raw content is written to tmp/ so live
     # schema mismatches are diagnosable (otherwise `from None` discards it,
     # per ADR #8). Off by default (no leak in production).
     monkeypatch.chdir(tmp_path)
-    monkeypatch.setenv("DISTORTION_DEBUG_SCHEMA", "1")
+    monkeypatch.setenv("GROUNDLINE_DEBUG_SCHEMA", "1")
     bad = _live_wrong_shape_response()
     completion = _FakeCompletion([bad, bad])
     policy = OpenAICompatPolicy(
@@ -847,7 +847,7 @@ async def test_policy_schema_debug_off_by_default(
 ) -> None:
     # Without the env var, schema failure must NOT write any debug file
     # (no content leak in production runs).
-    monkeypatch.delenv("DISTORTION_DEBUG_SCHEMA", raising=False)
+    monkeypatch.delenv("GROUNDLINE_DEBUG_SCHEMA", raising=False)
     monkeypatch.chdir(tmp_path)
     bad = _live_wrong_shape_response()
     completion = _FakeCompletion([bad, bad])
@@ -1072,7 +1072,7 @@ async def test_locked_policy_raises_decision_cache_miss(tmp_path: Path) -> None:
 async def test_locked_policy_needs_no_credentials(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    monkeypatch.delenv("DISTORTION_API_KEY", raising=False)
+    monkeypatch.delenv("GROUNDLINE_API_KEY", raising=False)
     context = _make_context()
     policy = OpenAICompatPolicy(
         model="gpt-4o",
@@ -1228,7 +1228,7 @@ async def test_request_body_temperature_overridable_via_generation_parameters() 
 async def test_request_body_temperature_overridable_via_env(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    monkeypatch.setenv("DISTORTION_TEMPERATURE", "0.4")
+    monkeypatch.setenv("GROUNDLINE_TEMPERATURE", "0.4")
     completion = _FakeCompletion()
     policy = OpenAICompatPolicy(model="gpt-4o", completion=completion)
     await policy.decide(_make_context())

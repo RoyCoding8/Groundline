@@ -6,17 +6,17 @@ from pathlib import Path
 import httpx
 import pytest
 
-from distortion_engine import __version__
-from distortion_engine.api.app import ArtifactRepository, create_app
-from distortion_engine.api.jobs import ExperimentJobManager, ExperimentLaunchConflict
-from distortion_engine.api.models import LaunchExperiment
-from distortion_engine.events.store import FileEventStore
-from distortion_engine.experiments.analysis import AnalysisSpecification, ContrastSpecification
-from distortion_engine.experiments.runner import ExperimentRequest
-from distortion_engine.organization.models import AgentConfig, OrganizationConfig
-from distortion_engine.policy.fixture import FixturePolicy
-from distortion_engine.simulation.runner import RunRequest, SimulationRunner, TreatmentConfig
-from distortion_engine.world.models import ScenarioConfig, WorkItemConfig
+from groundline import __version__
+from groundline.api.app import ArtifactRepository, create_app
+from groundline.api.jobs import ExperimentJobManager, ExperimentLaunchConflict
+from groundline.api.models import LaunchExperiment
+from groundline.events.store import FileEventStore
+from groundline.experiments.analysis import AnalysisSpecification, ContrastSpecification
+from groundline.experiments.runner import ExperimentRequest
+from groundline.organization.models import AgentConfig, OrganizationConfig
+from groundline.policy.fixture import FixturePolicy
+from groundline.simulation.runner import RunRequest, SimulationRunner, TreatmentConfig
+from groundline.world.models import ScenarioConfig, WorkItemConfig
 
 
 @pytest.mark.asyncio
@@ -61,7 +61,7 @@ async def test_read_only_api_serves_run_truth_reports_and_metrics(tmp_path: Path
     assert "distortion" in detail["metrics"]
     assert {event["kind"] for event in timeline} >= {"truth_snapshot", "report", "metric"}
     assert shell.status_code == 200
-    assert "The Distortion Engine" in shell.text
+    assert "The Groundline" in shell.text
 
 
 @pytest.mark.asyncio
@@ -107,13 +107,86 @@ def test_experiment_request_rejects_path_traversal(tmp_path: Path) -> None:
 
 
 @pytest.mark.asyncio
+async def test_corrupt_run_is_skipped_in_listing_but_loud_on_direct_lookup(
+    tmp_path: Path,
+) -> None:
+    good = await SimulationRunner().run(
+        _run_request(seed=3), FixturePolicy(), FileEventStore(tmp_path)
+    )
+    bad = await SimulationRunner().run(
+        _run_request(seed=9), FixturePolicy(), FileEventStore(tmp_path)
+    )
+    # Corrupt the second run's manifest (missing required fields).
+    (bad.run_directory / "manifest.json").write_text('{"run_id":"broken"}\n', encoding="utf-8")
+
+    transport = httpx.ASGITransport(app=create_app(tmp_path))
+    async with httpx.AsyncClient(transport=transport, base_url="http://test") as client:
+        listing = await client.get("/api/runs")
+        # The listing is resilient: the corrupt run is skipped, the good one survives.
+        assert listing.status_code == 200
+        listed_ids = {run["run_id"] for run in listing.json()}
+        assert good.manifest.run_id in listed_ids
+        assert bad.manifest.run_id not in listed_ids
+
+        # A direct lookup of the corrupt run still verifies it and surfaces the
+        # corruption as a typed 500 rather than a silent 404.
+        direct = await client.get(f"/api/runs/{bad.manifest.run_id}")
+        assert direct.status_code == 500
+        assert direct.json()["detail"] == {
+            "code": "invalid_structure",
+            "artifact": "manifest.json",
+            "message": "artifact manifest.json has an invalid structure",
+        }
+
+
+@pytest.mark.asyncio
+async def test_decisions_endpoint_exposes_agent_reasoning(tmp_path: Path) -> None:
+    result = await SimulationRunner().run(
+        _run_request(seed=5), FixturePolicy(), FileEventStore(tmp_path)
+    )
+    transport = httpx.ASGITransport(app=create_app(tmp_path))
+    async with httpx.AsyncClient(transport=transport, base_url="http://test") as client:
+        response = await client.get(f"/api/runs/{result.manifest.run_id}/decisions")
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["run_id"] == result.manifest.run_id
+    assert body["nodes"], "fixture run should produce at least one decision"
+
+    departments = {"Engineering", "Executive"}
+    for node in body["nodes"]:
+        assert isinstance(node["sequence"], int)
+        assert node["agent_id"]
+        assert node["policy"] == "fixture"
+        assert node["context_hash"]
+        report = node["report"]
+        assert report["agent_id"] == node["agent_id"]
+        assert report["department"] in departments
+        assert isinstance(report["depth"], int)
+        assert isinstance(report["tick"], int)
+        assert isinstance(report["confidence"], (int, float))
+        assert isinstance(report["explanation"], str) and report["explanation"]
+        assert isinstance(node["actions"], list)
+        assert isinstance(node["provider_metadata"], dict)
+
+
+@pytest.mark.asyncio
+async def test_decisions_endpoint_404_for_missing_run(tmp_path: Path) -> None:
+    transport = httpx.ASGITransport(app=create_app(tmp_path))
+    async with httpx.AsyncClient(transport=transport, base_url="http://test") as client:
+        response = await client.get("/api/runs/does-not-exist/decisions")
+    assert response.status_code == 404
+
+
+
+@pytest.mark.asyncio
 async def test_api_returns_structured_errors_for_corruption_filters_and_missing_model(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     request = _run_request(seed=9)
     result = await SimulationRunner().run(request, FixturePolicy(), FileEventStore(tmp_path))
     (result.run_directory / "metrics.json").write_text("not-json", encoding="utf-8")
-    monkeypatch.setenv("DISTORTION_MODEL", "")
+    monkeypatch.setenv("GROUNDLINE_MODEL", "")
     experiment = ExperimentRequest(
         name="missing-model-check",
         seeds=(1,),
@@ -179,12 +252,10 @@ async def test_api_returns_typed_errors_for_structurally_malformed_artifacts(
         "artifact": "metrics.json",
         "message": "artifact metrics.json has an invalid structure",
     }
-    assert malformed_manifest.status_code == 500
-    assert malformed_manifest.json()["detail"] == {
-        "code": "invalid_structure",
-        "artifact": "manifest.json",
-        "message": "artifact manifest.json has an invalid structure",
-    }
+    # A corrupt manifest must not poison the run listing: the index skips the
+    # bad run and returns the survivors (here: none) instead of a 500.
+    assert malformed_manifest.status_code == 200
+    assert malformed_manifest.json() == []
 
 
 @pytest.mark.asyncio

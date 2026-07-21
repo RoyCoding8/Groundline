@@ -1,4 +1,5 @@
 import type {
+  DecisionNode,
   EvidenceNode,
   Experiment,
   ExperimentRequest,
@@ -6,6 +7,8 @@ import type {
   RunDetail,
   TimelineEvent,
 } from "./types";
+
+export type LaunchPolicy = "fixture" | "record" | "locked";
 
 function errorDetail(value: unknown): string | null {
   if (typeof value === "string") return value;
@@ -86,11 +89,22 @@ export function loadEvidence(
   return requestJson(`/api/runs/${encodeURIComponent(runId)}/evidence?${query}`, { signal });
 }
 
-export function launchExperiment(experiment: ExperimentRequest): Promise<JobStatus> {
+export function loadDecisions(
+  runId: string,
+  signal?: AbortSignal,
+): Promise<{ nodes: DecisionNode[] }> {
+  return requestJson(`/api/runs/${encodeURIComponent(runId)}/decisions`, { signal });
+}
+
+export function launchExperiment(
+  experiment: ExperimentRequest,
+  policy: LaunchPolicy = "fixture",
+  model = "",
+): Promise<JobStatus> {
   return requestJson<JobStatus>("/api/experiments", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ experiment, policy: "fixture" }),
+    body: JSON.stringify({ experiment, policy, model }),
   });
 }
 

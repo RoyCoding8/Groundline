@@ -5,8 +5,8 @@ import pytest
 import typer
 from typer.testing import CliRunner
 
-from distortion_engine import __version__
-from distortion_engine.cli import _policy, app
+from groundline import __version__
+from groundline.cli import _policy, app
 
 
 def test_cli_exposes_version_and_required_commands() -> None:
@@ -16,7 +16,7 @@ def test_cli_exposes_version_and_required_commands() -> None:
     assert __version__ in result.stdout
     for command in ("validate", "run", "replay", "experiment", "analyze", "serve"):
         assert command in result.stdout
-    assert version("distortion-engine") == __version__
+    assert version("groundline") == __version__
 
 
 def test_cli_invalid_policy_lists_every_accepted_alias(tmp_path: Path) -> None:

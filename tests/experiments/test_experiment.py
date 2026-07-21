@@ -4,19 +4,19 @@ from pathlib import Path
 
 import pytest
 
-from distortion_engine.events.store import FileEventStore
-from distortion_engine.experiments.analysis import (
+from groundline.events.store import FileEventStore
+from groundline.experiments.analysis import (
     AnalysisSpecification,
     ContrastSpecification,
     SensitivitySpecification,
 )
-from distortion_engine.experiments.runner import ExperimentRequest, ExperimentRunner
-from distortion_engine.metrics.outcomes import OutcomeSpecification
-from distortion_engine.organization.models import AgentConfig, OrganizationConfig
-from distortion_engine.policy.fixture import FixturePolicy
-from distortion_engine.policy.models import AgentContext, PolicyDecision
-from distortion_engine.simulation.runner import RunRequest, SimulationRunner, TreatmentConfig
-from distortion_engine.world.models import ScenarioConfig, WorkItemConfig, WorldAction
+from groundline.experiments.runner import ExperimentRequest, ExperimentRunner
+from groundline.metrics.outcomes import OutcomeSpecification
+from groundline.organization.models import AgentConfig, OrganizationConfig
+from groundline.policy.fixture import FixturePolicy
+from groundline.policy.models import AgentContext, PolicyDecision
+from groundline.simulation.runner import RunRequest, SimulationRunner, TreatmentConfig
+from groundline.world.models import ScenarioConfig, WorkItemConfig, WorldAction
 
 
 def _analysis(baseline: str, intervention: str) -> AnalysisSpecification:

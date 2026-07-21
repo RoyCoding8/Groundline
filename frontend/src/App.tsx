@@ -12,15 +12,16 @@ import {
 import {
   checkBackend,
   launchExperiment,
+  loadDecisions,
   loadEvidence,
   loadExperiment,
   loadFirstExperiment,
   loadRun,
   waitForJob,
 } from "./api";
-import { EvidenceInspector, InterventionControls, type InterventionValues } from "./components";
+import { DecisionInspector, EvidenceInspector, InterventionControls, type InterventionValues } from "./components";
 import { DistortionLadder, SignalChart } from "./charts";
-import type { EvidenceNode, Experiment, JobStatus, RunDetail, TimelineEvent } from "./types";
+import type { DecisionNode, EvidenceNode, Experiment, JobStatus, RunDetail, TimelineEvent } from "./types";
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -50,6 +51,9 @@ type SelectedRunState =
     evidenceKey: string;
     evidenceStatus: "loaded" | "loading" | "error";
     evidenceError: string;
+    decisions: DecisionNode[];
+    decisionsStatus: "loaded" | "loading" | "error";
+    decisionsError: string;
   };
 
 // ---------------------------------------------------------------------------
@@ -91,7 +95,7 @@ function Sidebar({
       />
       <nav className={`sidebar ${collapsed ? "collapsed" : ""} ${mobileOpen ? "mobile-open" : ""}`} aria-label="Main navigation">
         <div className="sidebar-header">
-          <span className="sidebar-title">Distortion Engine</span>
+          <span className="sidebar-title">Groundline</span>
           <button
             type="button"
             className="sidebar-toggle"
@@ -197,7 +201,7 @@ function DashboardView({
   if (backendStatus === "offline") {
     return (
       <div className="dashboard-view">
-        <h1>Distortion Engine</h1>
+        <h1>Groundline</h1>
         <p className="dashboard-subtitle">Causal evaluation environment for hierarchical agent organizations.</p>
         <div className="dashboard-empty">
           <div className="empty-icon"><Warning size={48} /></div>
@@ -213,13 +217,13 @@ function DashboardView({
   if (experimentCount === 0) {
     return (
       <div className="dashboard-view">
-        <h1>Distortion Engine</h1>
+        <h1>Groundline</h1>
         <p className="dashboard-subtitle">Causal evaluation environment for hierarchical agent organizations.</p>
         <div className="dashboard-empty">
           <div className="empty-icon"><Flask size={48} /></div>
           <h2>No experiments yet</h2>
           <p>Run the offline demo or create an experiment from the command line.</p>
-          <code>uv run distortion experiment --config configs/demo.yaml</code>
+          <code>uv run groundline experiment --config configs/demo.yaml</code>
         </div>
       </div>
     );
@@ -227,7 +231,7 @@ function DashboardView({
 
   return (
     <div className="dashboard-view">
-      <h1>Distortion Engine</h1>
+      <h1>Groundline</h1>
       <p className="dashboard-subtitle">Causal evaluation environment for hierarchical agent organizations.</p>
       <div className="dashboard-cards">
         <div className="dashboard-card">
@@ -355,6 +359,7 @@ function RunView({
   onSetRunReload,
   job,
   launchError,
+  launchPolicy,
   onRunIntervention,
   theme,
 }: {
@@ -369,6 +374,7 @@ function RunView({
   onSetRunReload: (fn: (v: number) => number) => void;
   job: JobStatus | null;
   launchError: string;
+  launchPolicy: "fixture" | "record" | "locked";
   onRunIntervention: (values: InterventionValues) => void;
   theme: string;
 }) {
@@ -402,7 +408,7 @@ function RunView({
           <h1>Artifact read failed</h1>
           <p>{experimentError}</p>
           <button type="button" className="md3-button md3-button--filled" onClick={onReloadExperiment}>RETRY</button>
-          <code>uv run distortion experiment --config configs/demo.yaml</code>
+          <code>uv run groundline experiment --config configs/demo.yaml</code>
         </div>
       </div>
     );
@@ -502,7 +508,7 @@ function RunView({
         <header className="app-header">
           <div>
             <p className="section-label">FIRMWORLD / CAUSAL RUN</p>
-            <h1 className="app-title">The Distortion Engine</h1>
+            <h1 className="app-title">The Groundline</h1>
           </div>
           <div>
             <div className="run-badge">
@@ -540,7 +546,7 @@ function RunView({
               onLaunch={(values) => { void onRunIntervention(values); }}
             />
           </div>
-          {job && <div className={`job-progress ${job.status}`}><strong>{job.status.toUpperCase()}</strong><span>{job.completed_runs} / {job.total_runs} RUNS FINALIZED</span></div>}
+          {job && <div className={`job-progress ${job.status}`}><strong>{job.status.toUpperCase()}</strong><span>{job.completed_runs} / {job.total_runs} RUNS FINALIZED</span><span className="job-policy">POLICY: {launchPolicy.toUpperCase()}</span></div>}
           {launchError && <p className="inline-error" role="alert">{launchError}</p>}
         </section>
 
@@ -600,6 +606,13 @@ function RunView({
           onDepth={setDepthFilter}
         />
 
+        {selectedRunState.decisionsStatus === "error" && <p className="inline-error" role="alert">{selectedRunState.decisionsError}</p>}
+        <DecisionInspector
+          nodes={selectedRunState.decisions}
+          departments={departments}
+          policy={detail.manifest.policy}
+        />
+
         <footer className="app-footer">
           <span>{experiment.analysis.unit_of_analysis.toUpperCase()} IS THE UNIT OF ANALYSIS</span>
           <span>{comparison?.n_pairs ?? experiment.analysis.design_diagnostics.complete_pairs} PAIRED REPLICATES</span>
@@ -631,6 +644,7 @@ export function App() {
   const [runReload, setRunReload] = useState(0);
   const [job, setJob] = useState<JobStatus | null>(null);
   const [launchError, setLaunchError] = useState("");
+  const [launchPolicy, setLaunchPolicy] = useState<"fixture" | "record" | "locked">("fixture");
 
   // Theme
   useEffect(() => {
@@ -687,7 +701,8 @@ export function App() {
     Promise.all([
       loadRun(runId, controller.signal),
       loadEvidence(runId, {}, controller.signal),
-    ]).then(([[detail, timeline], chain]) => {
+      loadDecisions(runId, controller.signal),
+    ]).then(([[detail, timeline], chain, decisions]) => {
       if (controller.signal.aborted) return;
       if (detail.manifest.run_id !== runId) {
         setSelectedRunState({ status: "error", runId, message: `run identity mismatch: expected ${runId}` });
@@ -696,6 +711,7 @@ export function App() {
       setSelectedRunState({
         status: "loaded", runId, detail, timeline,
         evidence: chain.nodes, evidenceKey: "", evidenceStatus: "loaded", evidenceError: "",
+        decisions: decisions.nodes, decisionsStatus: "loaded", decisionsError: "",
       });
     }).catch((caught: unknown) => {
       if (controller.signal.aborted || isAbortError(caught)) return;
@@ -748,26 +764,31 @@ export function App() {
     const name = `ui-${selectedSeed}-i${Math.round(values.incentive * 100)}-a${values.attention}-n${values.seedCount}`;
     const seeds = Array.from({ length: values.seedCount }, (_, index) => selectedSeed + index * 104729);
     try {
-      const launched = await launchExperiment({
-        name, seeds,
-        scenario: sourceDetail.request.scenario,
-        organization: sourceDetail.request.organization,
-        treatments: {
-          low_incentive_low_attention: { incentive_pressure: lowIncentive, attention_budget: lowAttention },
-          low_incentive_high_attention: { incentive_pressure: lowIncentive, attention_budget: highAttention },
-          high_incentive_low_attention: { incentive_pressure: highIncentive, attention_budget: lowAttention },
-          high_incentive_high_attention: { incentive_pressure: highIncentive, attention_budget: highAttention },
+      setLaunchPolicy(values.policy);
+      const launched = await launchExperiment(
+        {
+          name, seeds,
+          scenario: sourceDetail.request.scenario,
+          organization: sourceDetail.request.organization,
+          treatments: {
+            low_incentive_low_attention: { incentive_pressure: lowIncentive, attention_budget: lowAttention },
+            low_incentive_high_attention: { incentive_pressure: lowIncentive, attention_budget: highAttention },
+            high_incentive_low_attention: { incentive_pressure: highIncentive, attention_budget: lowAttention },
+            high_incentive_high_attention: { incentive_pressure: highIncentive, attention_budget: highAttention },
+          },
+          analysis: {
+            seed: selectedSeed, missingness: "fail_if_missing",
+            contrasts: [{
+              id: "pressure-at-low-attention", baseline: "low_incentive_low_attention",
+              intervention: "high_incentive_low_attention", outcome: "upward_amplification",
+              direction: "increase", family: "primary", status: "confirmatory",
+            }],
+          },
+          max_concurrency: 4,
         },
-        analysis: {
-          seed: selectedSeed, missingness: "fail_if_missing",
-          contrasts: [{
-            id: "pressure-at-low-attention", baseline: "low_incentive_low_attention",
-            intervention: "high_incentive_low_attention", outcome: "upward_amplification",
-            direction: "increase", family: "primary", status: "confirmatory",
-          }],
-        },
-        max_concurrency: 4,
-      });
+        values.policy,
+        values.model,
+      );
       setJob(launched);
       await waitForJob(launched.job_id, setJob);
       const completed = await loadExperiment(name);
@@ -835,6 +856,7 @@ export function App() {
             onSetRunReload={setRunReload}
             job={job}
             launchError={launchError}
+            launchPolicy={launchPolicy}
             onRunIntervention={runIntervention}
             theme={theme}
           />

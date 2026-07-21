@@ -1,8 +1,8 @@
 import pytest
 
-from distortion_engine.organization.models import AgentRole
-from distortion_engine.world.engine import WorldEngine
-from distortion_engine.world.models import (
+from groundline.organization.models import AgentRole
+from groundline.world.engine import WorldEngine
+from groundline.world.models import (
     ActionKind,
     ActorAction,
     ScenarioConfig,

@@ -8,7 +8,7 @@ duplicate cannot silently reappear (which would let the two copies drift).
 
 from __future__ import annotations
 
-from distortion_engine.events import artifacts, store
+from groundline.events import artifacts, store
 
 
 def test_canonical_json_is_single_source_of_truth() -> None:

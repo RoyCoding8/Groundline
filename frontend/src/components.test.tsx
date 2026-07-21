@@ -18,7 +18,7 @@ describe("InterventionControls", () => {
     await user.type(attention, "3");
     await user.click(screen.getByRole("button", { name: "RUN INTERVENTION" }));
 
-    expect(launch).toHaveBeenCalledWith({ incentive: 0.9, attention: 3, seedCount: 12 });
+    expect(launch).toHaveBeenCalledWith({ incentive: 0.9, attention: 3, seedCount: 12, policy: "fixture", model: "" });
   });
 });
 

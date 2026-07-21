@@ -8,6 +8,7 @@ import type { Experiment, RunDetail, TimelineEvent } from "./types";
 vi.mock("./api", () => ({
   checkBackend: vi.fn().mockResolvedValue(true),
   launchExperiment: vi.fn(),
+  loadDecisions: vi.fn(),
   loadEvidence: vi.fn(),
   loadExperiment: vi.fn(),
   loadFirstExperiment: vi.fn(),
@@ -124,6 +125,31 @@ function mockSuccessfulReads() {
     timeline,
   ]);
   mockedApi.loadEvidence.mockResolvedValue({ nodes: [] });
+  mockedApi.loadDecisions.mockResolvedValue({
+    nodes: [
+      {
+        sequence: 0,
+        agent_id: "worker",
+        tick: 1,
+        policy: "policy-a",
+        context_hash: "abc",
+        report: {
+          agent_id: "worker",
+          department: "Engineering",
+          depth: 2,
+          tick: 1,
+          scope: ["ops"],
+          health: { progress: 0.5, quality: 0.5, schedule: 0.5, reliability: 0.5 },
+          confidence: 0.7,
+          escalate: false,
+          resource_request: 1,
+          explanation: "everything looks on track from the floor",
+        },
+        actions: [],
+        provider_metadata: {},
+      },
+    ],
+  });
 }
 
 /** Navigate into the Run Viewer, which triggers loadFirstExperiment and
@@ -192,6 +218,14 @@ describe("App run identity and states", () => {
 
     expect(screen.queryByText("Run read failed")).not.toBeInTheDocument();
     expect(screen.queryByText("stale failure")).not.toBeInTheDocument();
+  });
+
+  it("surfaces per-agent decision explanations in the run viewer", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    await openRunViewer(user);
+    expect(await screen.findByText("AGENT DECISIONS")).toBeInTheDocument();
+    expect(screen.getByText("everything looks on track from the floor")).toBeInTheDocument();
   });
 
   it("launches from the identity-matched selected run", async () => {

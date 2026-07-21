@@ -1,4 +1,4 @@
-"""Distortion Engine — lightweight TUI launcher.
+"""Groundline — lightweight TUI launcher.
 
 Usage:
     python tui.py
@@ -40,7 +40,7 @@ console = Console()
 
 
 def _version() -> str:
-    init = ROOT / "src" / "distortion_engine" / "__init__.py"
+    init = ROOT / "src" / "groundline" / "__init__.py"
     for line in init.read_text().splitlines():
         if line.startswith("__version__"):
             return line.split("=")[1].strip().strip("\"'")
@@ -50,11 +50,11 @@ def _version() -> str:
 def _env_status() -> dict[str, str]:
     """Read .env and report key presence (never print values)."""
     keys = [
-        "DISTORTION_MODEL",
-        "DISTORTION_API_BASE",
-        "DISTORTION_API_KEY",
-        "DISTORTION_TIMEOUT_SECONDS",
-        "DISTORTION_MAX_ATTEMPTS",
+        "GROUNDLINE_MODEL",
+        "GROUNDLINE_API_BASE",
+        "GROUNDLINE_API_KEY",
+        "GROUNDLINE_TIMEOUT_SECONDS",
+        "GROUNDLINE_MAX_ATTEMPTS",
     ]
     values: dict[str, str] = {}
     if ENV_FILE.exists():
@@ -70,7 +70,7 @@ def _env_status() -> dict[str, str]:
         v = values.get(k, "")
         if not v:
             result[k] = "[dim]not set[/]"
-        elif k == "DISTORTION_API_KEY":
+        elif k == "GROUNDLINE_API_KEY":
             result[k] = "[green]set[/]"
         else:
             result[k] = f"[green]{v}[/]"
@@ -84,12 +84,7 @@ def _run(cmd: list[str], cwd: Path | None = None) -> int:
 
 
 def _start_background(cmd: list[str], cwd: Path | None = None) -> subprocess.Popen:
-    """Start a process in the background, returning the Popen object.
-
-    Uses DEVNULL to prevent pipe-buffer deadlocks when the child produces
-    more output than the OS pipe buffer can hold. On Unix, creates a new
-    process group via os.setsid so the entire tree can be killed cleanly.
-    """
+    """Start a process in the background, returning the Popen object"""
     kwargs: dict = {
         "cwd": cwd or ROOT,
         "stdout": subprocess.DEVNULL,
@@ -120,7 +115,7 @@ def _kill_tree(proc: subprocess.Popen) -> None:
 
 
 def _kill_port(port: int) -> None:
-    """Kill any process listening on the given port."""
+    """Kill any process listening on the given port, cross-platform."""
     import socket
 
     try:
@@ -128,31 +123,46 @@ def _kill_port(port: int) -> None:
             pass
     except OSError:
         return  # nothing on that port
-    # Windows: find and kill the process
+
+    def _kill(pid: str) -> None:
+        if sys.platform == "win32":
+            subprocess.run(["taskkill", "/F", "/T", "/PID", pid], capture_output=True)
+        else:
+            subprocess.run(["kill", "-9", pid], capture_output=True)
+        console.print(f"  [yellow]Killed process on port {port} (PID {pid})[/]")
+
     if sys.platform == "win32":
         out = subprocess.run(
-            ["netstat", "-ano", "-p", "TCP"],
+            [
+                "powershell",
+                "-NoProfile",
+                "-Command",
+                "Get-NetTCPConnection -State Listen -LocalPort "
+                f"{port} -ErrorAction SilentlyContinue | "
+                "Select-Object -Expand OwningProcess -Unique",
+            ],
             capture_output=True,
             text=True,
         )
-        for line in out.stdout.splitlines():
-            if f":{port}" in line and "LISTENING" in line:
-                pid = line.strip().split()[-1]
-                subprocess.run(
-                    ["taskkill", "/F", "/PID", pid],
-                    capture_output=True,
-                )
-                console.print(f"  [yellow]Killed process on port {port} (PID {pid})[/]")
     else:
         out = subprocess.run(
             ["lsof", "-ti", f":{port}"],
             capture_output=True,
             text=True,
         )
-        for pid in out.stdout.strip().splitlines():
-            if pid:
-                subprocess.run(["kill", "-9", pid], capture_output=True)
-                console.print(f"  [yellow]Killed process on port {port} (PID {pid})[/]")
+        # fuser fallback where lsof is absent (some minimal Linux images)
+        if not out.stdout.strip():
+            out = subprocess.run(
+                ["fuser", f"{port}/tcp"],
+                capture_output=True,
+                text=True,
+            )
+
+    for pid in out.stdout.replace("\r", "").splitlines():
+        pid = pid.strip()
+        if pid:
+            _kill(pid)
+
 
 
 def _wait_for_port(host: str, port: int, timeout: float = 15.0) -> bool:
@@ -177,7 +187,7 @@ def _wait_for_port(host: str, port: int, timeout: float = 15.0) -> bool:
 def action_launch_web() -> None:
     """Start backend + frontend together, print URLs, wait for Ctrl+C."""
     console.print()
-    console.print("[bold]Launching Distortion Engine…[/]\n")
+    console.print("[bold]Launching Groundline Engine…[/]\n")
 
     # Kill anything on our ports first
     _kill_port(API_PORT)
@@ -185,7 +195,7 @@ def action_launch_web() -> None:
 
     # Start backend
     backend = _start_background(
-        [sys.executable, "-m", "uvicorn", "distortion_engine.api.app:app", "--port", str(API_PORT)],
+        [sys.executable, "-m", "uvicorn", "groundline.api.app:app", "--port", str(API_PORT)],
     )
     console.print(f"  [cyan]Backend[/] starting on port {API_PORT}…")
 
@@ -259,7 +269,7 @@ def action_backend() -> None:
         sys.executable,
         "-m",
         "uvicorn",
-        "distortion_engine.api.app:app",
+        "groundline.api.app:app",
         "--reload",
         "--port",
         str(API_PORT),
@@ -271,7 +281,7 @@ def action_demo() -> None:
     """Run the offline demo fixture."""
     console.print()
     console.print("[bold]Running offline demo…[/]\n")
-    _run([sys.executable, "-m", "distortion_engine.cli", "demo"])
+    _run([sys.executable, "-m", "groundline.cli", "demo"])
 
 
 def action_test() -> None:
@@ -333,7 +343,7 @@ MENU: list[tuple[str, str, str, callable]] = [
 
 def build_header() -> Panel:
     version = _version()
-    title = Text(f"Distortion Engine  v{version}", style="bold white")
+    title = Text(f"Groundline Engine  v{version}", style="bold white")
     subtitle = Text(
         "causal evaluation environment for hierarchical agent organizations",
         style="dim",
@@ -359,7 +369,7 @@ def main() -> None:
 
     # Show env status inline
     status = _env_status()
-    model_status = status.get("DISTORTION_MODEL", "[dim]not set[/]")
+    model_status = status.get("GROUNDLINE_MODEL", "[dim]not set[/]")
     console.print(f"  Model: {model_status}")
     console.print()
     console.print(build_menu_table())

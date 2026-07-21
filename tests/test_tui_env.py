@@ -33,11 +33,11 @@ def test_env_status_lists_only_openai_compat_keys(tmp_path: Path) -> None:
     tui = _load_tui()
     env = tmp_path / ".env"
     env.write_text(
-        "DISTORTION_MODEL=gpt-4o\n"
-        "DISTORTION_API_BASE=https://api.openai.com/v1\n"
-        "DISTORTION_API_KEY=sk-test\n"
-        "DISTORTION_TIMEOUT_SECONDS=120\n"
-        "DISTORTION_MAX_ATTEMPTS=2\n"
+        "GROUNDLINE_MODEL=gpt-4o\n"
+        "GROUNDLINE_API_BASE=https://api.openai.com/v1\n"
+        "GROUNDLINE_API_KEY=sk-test\n"
+        "GROUNDLINE_TIMEOUT_SECONDS=120\n"
+        "GROUNDLINE_MAX_ATTEMPTS=2\n"
         "AWS_PROFILE=legacy\n"
         "AWS_REGION=us-east-1\n",
         encoding="utf-8",
@@ -47,11 +47,11 @@ def test_env_status_lists_only_openai_compat_keys(tmp_path: Path) -> None:
     status = tui._env_status()
 
     assert set(status.keys()) == {
-        "DISTORTION_MODEL",
-        "DISTORTION_API_BASE",
-        "DISTORTION_API_KEY",
-        "DISTORTION_TIMEOUT_SECONDS",
-        "DISTORTION_MAX_ATTEMPTS",
+        "GROUNDLINE_MODEL",
+        "GROUNDLINE_API_BASE",
+        "GROUNDLINE_API_KEY",
+        "GROUNDLINE_TIMEOUT_SECONDS",
+        "GROUNDLINE_MAX_ATTEMPTS",
     }
     # Bedrock credentials must not leak into the panel.
     assert "AWS_PROFILE" not in status
@@ -59,14 +59,14 @@ def test_env_status_lists_only_openai_compat_keys(tmp_path: Path) -> None:
 
 
 def test_env_status_masks_only_the_real_secret(tmp_path: Path) -> None:
-    """Only DISTORTION_API_KEY is masked; AWS keys are gone entirely."""
+    """Only GROUNDLINE_API_KEY is masked; AWS keys are gone entirely."""
     tui = _load_tui()
     env = tmp_path / ".env"
-    env.write_text("DISTORTION_API_KEY=sk-secret\nAWS_PROFILE=never-shown\n", encoding="utf-8")
+    env.write_text("GROUNDLINE_API_KEY=sk-secret\nAWS_PROFILE=never-shown\n", encoding="utf-8")
     tui.ENV_FILE = env
 
     status = tui._env_status()
 
-    assert status["DISTORTION_API_KEY"] == "[green]set[/]"
+    assert status["GROUNDLINE_API_KEY"] == "[green]set[/]"
     # A masked-but-present AWS key would be a regression; it must be absent.
     assert "AWS_PROFILE" not in status

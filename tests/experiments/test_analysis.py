@@ -1,7 +1,7 @@
 import pytest
 from pydantic import ValidationError
 
-from distortion_engine.experiments.analysis import (
+from groundline.experiments.analysis import (
     AnalysisRun,
     AnalysisSpecification,
     ContrastSpecification,
@@ -9,7 +9,7 @@ from distortion_engine.experiments.analysis import (
     SensitivitySpecification,
     analyze_experiment,
 )
-from distortion_engine.metrics.outcomes import (
+from groundline.metrics.outcomes import (
     CalibrationOutcome,
     DepthOutcomes,
     DistortionSummary,
@@ -21,7 +21,7 @@ from distortion_engine.metrics.outcomes import (
     RunOutcomes,
     ScalarOutcome,
 )
-from distortion_engine.world.models import OperationalHarmMaxima
+from groundline.world.models import OperationalHarmMaxima
 
 
 def _summary(optimism: float, *, median: float | None = None) -> DistortionSummary:

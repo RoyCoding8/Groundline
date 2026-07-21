@@ -38,6 +38,30 @@ export type EvidenceNode = {
   event: TimelineEvent;
 };
 
+export type DecisionReport = {
+  agent_id: string;
+  department: string;
+  depth: number;
+  tick: number;
+  scope: string[];
+  health: Health;
+  confidence: number;
+  escalate: boolean;
+  resource_request: number;
+  explanation: string;
+};
+
+export type DecisionNode = {
+  sequence: number;
+  agent_id: string;
+  tick: number;
+  policy: string;
+  context_hash: string;
+  report: DecisionReport;
+  actions: Array<Record<string, unknown>>;
+  provider_metadata: Record<string, unknown>;
+};
+
 export type IndexedRun = {
   status?: "completed";
   seed: number;

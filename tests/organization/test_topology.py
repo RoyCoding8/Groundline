@@ -1,7 +1,7 @@
 import pytest
 from pydantic import ValidationError
 
-from distortion_engine.organization import (
+from groundline.organization import (
     AgentConfig,
     OrganizationConfig,
     transform_reporting_span,

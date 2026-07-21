@@ -8,5 +8,6 @@ export default defineConfig({
     command: "uv --directory .. run python scripts/serve_e2e.py",
     url: "http://127.0.0.1:4173",
     reuseExistingServer: false,
+    timeout: 180_000,
   },
 });

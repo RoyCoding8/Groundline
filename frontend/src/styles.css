@@ -1,5 +1,5 @@
 /* ============================================================
-   The Distortion Engine — Styles
+   The Groundline — Styles
    ============================================================ */
 @import "./theme.css";
 
@@ -514,6 +514,121 @@ button, select, input, textarea {
 .empty-evidence {
   font: var(--md3-type-body);
   color: var(--md3-on-surface-variant);
+}
+
+/* ============================================================
+   AGENT DECISIONS INSPECTOR
+   ============================================================ */
+.decisions-section {
+  padding: 32px 0;
+  border-top: 1px solid var(--md3-outline-variant);
+}
+
+.decisions-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 32px;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+.decisions-header h2 {
+  margin: 0;
+}
+
+.decisions-header p {
+  margin: 4px 0 0;
+  font: var(--md3-type-body);
+  color: var(--md3-on-surface-variant);
+  max-width: 60ch;
+}
+
+.decisions-list {
+  list-style: none;
+  padding: 0;
+  margin: 16px 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.decision-card {
+  border: 1px solid var(--md3-outline-variant);
+  border-radius: 12px;
+  padding: 14px 16px;
+  background: var(--md3-surface-container);
+  transition: background 0.15s;
+}
+
+.decision-card:hover {
+  background: var(--md3-surface-container-high);
+}
+
+.decision-card[data-escalate="true"] {
+  border-color: var(--md3-error, #b3261e);
+}
+
+.decision-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  font: var(--md3-type-label);
+  color: var(--md3-on-surface-variant);
+}
+
+.decision-meta strong {
+  font: var(--md3-type-label);
+  color: var(--md3-on-surface);
+}
+
+.policy-badge {
+  padding: 2px 8px;
+  border-radius: 999px;
+  font: var(--md3-type-data);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  background: var(--md3-surface-container-highest);
+  color: var(--md3-on-surface);
+}
+
+.policy-badge.policy-record { background: var(--md3-primary-container); color: var(--md3-on-primary-container); }
+.policy-badge.policy-locked { background: var(--md3-tertiary-container, #e8def8); color: var(--md3-on-tertiary-container, #1d192b); }
+
+.escalate-flag {
+  padding: 2px 8px;
+  border-radius: 999px;
+  font: var(--md3-type-data);
+  font-weight: 700;
+  background: var(--md3-error-container, #f9dedc);
+  color: var(--md3-on-error-container, #410e0b);
+}
+
+.decision-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin: 8px 0 0;
+  font: var(--md3-type-data);
+  color: var(--md3-on-surface-variant);
+}
+
+.decision-explanation {
+  margin: 10px 0 0;
+  padding: 10px 14px;
+  border-left: 3px solid var(--md3-primary);
+  background: var(--md3-surface-container-low);
+  font: var(--md3-type-body);
+  color: var(--md3-on-surface);
+  white-space: pre-wrap;
+  border-radius: 0 8px 8px 0;
+}
+
+.job-policy {
+  margin-left: auto;
+  font: var(--md3-type-data);
+  opacity: 0.85;
 }
 
 /* ============================================================

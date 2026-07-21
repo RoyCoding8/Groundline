@@ -4,19 +4,19 @@ from pathlib import Path
 
 import pytest
 
-from distortion_engine.events.artifacts import (
+from groundline.events.artifacts import (
     ArtifactCorruptError,
     canonical_hash,
     verify_run_artifacts,
 )
-from distortion_engine.events.store import FileEventStore, canonical_json
-from distortion_engine.organization.models import AgentConfig, OrganizationConfig
-from distortion_engine.organization.topology import ReportingSpan
-from distortion_engine.policy.fixture import FixturePolicy
-from distortion_engine.policy.models import AgentContext, PolicyDecision
-from distortion_engine.replay.engine import ReplayEngine
-from distortion_engine.simulation.runner import RunRequest, SimulationRunner, TreatmentConfig
-from distortion_engine.world.models import ScenarioConfig, WorkItemConfig, WorldAction
+from groundline.events.store import FileEventStore, canonical_json
+from groundline.organization.models import AgentConfig, OrganizationConfig
+from groundline.organization.topology import ReportingSpan
+from groundline.policy.fixture import FixturePolicy
+from groundline.policy.models import AgentContext, PolicyDecision
+from groundline.replay.engine import ReplayEngine
+from groundline.simulation.runner import RunRequest, SimulationRunner, TreatmentConfig
+from groundline.world.models import ScenarioConfig, WorkItemConfig, WorldAction
 
 
 def request(*, max_ticks: int = 3) -> RunRequest:

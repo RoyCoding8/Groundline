@@ -1,5 +1,5 @@
 [project]
-name = "distortion-engine"
+name = "groundline"
 dynamic = ["version"]
 description = "Causal evaluation environment for hierarchical language-agent organizations"
 readme = "README.md"
@@ -21,7 +21,7 @@ dependencies = [
 ]
 
 [project.scripts]
-distortion = "distortion_engine.cli:app"
+groundline = "groundline.cli:app"
 
 [dependency-groups]
 dev = [
@@ -39,10 +39,10 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.hatch.version]
-path = "src/distortion_engine/__init__.py"
+path = "src/groundline/__init__.py"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/distortion_engine"]
+packages = ["src/groundline"]
 
 [tool.hatch.build.hooks.custom]
 
@@ -59,9 +59,9 @@ target-version = "py313"
 select = ["E", "F", "I", "UP", "B", "SIM"]
 
 [tool.ruff.lint.per-file-ignores]
-"src/distortion_engine/cli.py" = ["B008"]
+"src/groundline/cli.py" = ["B008"]
 
 [tool.mypy]
 python_version = "3.13"
 strict = true
-packages = ["distortion_engine"]
+packages = ["groundline"]

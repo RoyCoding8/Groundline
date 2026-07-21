@@ -41,6 +41,7 @@ test("switches treatments, filters evidence, and launches a fresh intervention",
     if (url.pathname === "/api/experiments/ui-7-i0-a2-n12") return route.fulfill({ json: experiment });
     if (url.pathname === "/api/jobs/job-1") return route.fulfill({ json: { job_id: "job-1", experiment: "new", status: "completed", completed_runs: 60, failed_runs: 0, total_runs: 60, error: null } });
     if (url.pathname.endsWith("/evidence")) return route.fulfill({ json: { nodes: [{ sequence: 1, kind: "report", tick: 1, actor_id: "exec", department: "Executive", depth: 0, causes: [0], evidence_refs: [], event: timeline(0.45)[1] }] } });
+    if (url.pathname.endsWith("/decisions")) return route.fulfill({ json: { run_id: "run-control", nodes: [{ sequence: 0, agent_id: "worker", tick: 1, policy: "fixture", context_hash: "abc", report: { agent_id: "worker", department: "Engineering", depth: 1, tick: 1, scope: ["ops"], health: { progress: 0.5, quality: 0.5, schedule: 0.5, reliability: 0.5 }, confidence: 0.7, escalate: false, resource_request: 1, explanation: "everything looks on track from the floor" }, actions: [], provider_metadata: {} }] } });
     if (url.pathname.endsWith("/timeline")) return route.fulfill({ json: timeline(url.pathname.includes("intervention") ? 0.7 : 0.45) });
     if (url.pathname.includes("run-intervention")) return route.fulfill({ json: detail(0.9) });
     if (url.pathname.includes("run-control")) return route.fulfill({ json: detail(0) });
@@ -54,6 +55,8 @@ test("switches treatments, filters evidence, and launches a fresh intervention",
   await expect(page.getByText("0.90")).toBeVisible();
   await page.getByLabel("Evidence department").selectOption("Executive");
   await expect(page.getByText("FROM #0")).toBeVisible();
+  await expect(page.getByText("AGENT DECISIONS")).toBeVisible();
+  await expect(page.getByText("everything looks on track from the floor")).toBeVisible();
   await page.getByRole("button", { name: "RUN INTERVENTION" }).click();
   await expect(page.getByText("COMPLETED")).toBeVisible();
 });

@@ -1,9 +1,9 @@
 import pytest
 from pydantic import ValidationError
 
-from distortion_engine.events.models import Event
-from distortion_engine.metrics.engine import DistortionMetric
-from distortion_engine.metrics.outcomes import (
+from groundline.events.models import Event
+from groundline.metrics.engine import DistortionMetric
+from groundline.metrics.outcomes import (
     NormalizedOperationalHarm,
     OperationalHarm,
     OperationalHarmComponents,
@@ -11,8 +11,8 @@ from distortion_engine.metrics.outcomes import (
     calculate_run_outcomes,
     compare_operational_harm,
 )
-from distortion_engine.organization.models import AgentConfig, OrganizationConfig
-from distortion_engine.world.models import (
+from groundline.organization.models import AgentConfig, OrganizationConfig
+from groundline.world.models import (
     OperationalHarmMaxima,
     ScenarioConfig,
     WorkItemConfig,

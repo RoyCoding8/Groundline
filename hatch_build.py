@@ -21,4 +21,4 @@ class CustomBuildHook(BuildHookInterface):
             subprocess.run([npm, "ci"], cwd=frontend, check=True)
         subprocess.run([npm, "run", "build"], cwd=frontend, check=True)
         force_include = build_data.setdefault("force_include", {})
-        force_include[str(frontend / "dist")] = "distortion_engine/frontend"
+        force_include[str(frontend / "dist")] = "groundline/frontend"

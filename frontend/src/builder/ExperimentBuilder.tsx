@@ -214,7 +214,7 @@ function TextField({ label, value, onChange, placeholder }: {
 }
 
 function RemoveButton({ onClick }: { onClick: () => void }) {
-  return <button type="button" className="builder-remove" aria-label="Remove row" onClick={onClick}>✕</button>;
+  return <button type="button" className="builder-remove" aria-label="Remove row" onClick={onClick}>×</button>;
 }
 
 function MapField({ label, value, onChange }: { label: string; value: Record<string, number>; onChange: (v: Record<string, number>) => void }) {
@@ -569,34 +569,44 @@ export function ExperimentBuilder({
           </div>
         </header>
 
-        <TextField label="EXPERIMENT NAME" value={req.name} onChange={(v) => setReq({ ...req, name: v })} />
-
-        <OrganizationSection agents={req.organization.agents} onChange={(agents) => setReq({ ...req, organization: { agents } })} />
-        <ScenarioSection scenario={req.scenario} departments={departments} onChange={(scenario) => setReq({ ...req, scenario })} />
-        <TreatmentsSection treatments={req.treatments} onChange={(treatments) => setReq({ ...req, treatments })} />
-        <AnalysisSection req={req} onChange={setReq} />
-
-        <section className="builder-section builder-launch">
-          <header><h2>LAUNCH</h2><p>The world is deterministic; agent output never sets world state.</p></header>
-          <div className="builder-inline">
-            <label className="field-label">POLICY
-              <select className="md3-select" value={policy} onChange={(e) => setPolicy(e.target.value as LaunchPolicy)}>
-                <option value="fixture">fixture — deterministic</option>
-                <option value="record">record — live LLM</option>
-                <option value="locked">locked — replay only</option>
-              </select>
-            </label>
-            <label className="field-label">MODEL (optional)
-              <input className="md3-input" type="text" maxLength={100} disabled={!livePolicy} placeholder={livePolicy ? "uses GROUNDLINE_MODEL from .env if blank" : "only used for record / locked"} value={model} onChange={(e) => setModel(e.target.value)} />
-            </label>
+        <div className="builder-workspace">
+          <div className="builder-canvas">
+            <div className="builder-name-field"><TextField label="EXPERIMENT NAME" value={req.name} onChange={(v) => setReq({ ...req, name: v })} /></div>
+            <OrganizationSection agents={req.organization.agents} onChange={(agents) => setReq({ ...req, organization: { agents } })} />
+            <ScenarioSection scenario={req.scenario} departments={departments} onChange={(scenario) => setReq({ ...req, scenario })} />
+            <TreatmentsSection treatments={req.treatments} onChange={(treatments) => setReq({ ...req, treatments })} />
+            <AnalysisSection req={req} onChange={setReq} />
           </div>
-          {errors.length > 0 && (
-            <p className="inline-error" role="alert"><Warning size={16} /> {errors[0]}{errors.length > 1 ? ` (and ${errors.length - 1} more)` : ""}</p>
-          )}
-          <button type="button" className="md3-button md3-button--filled" disabled={submitting || errors.length > 0} onClick={() => { void submit(); }}>
-            {submitting ? "RUNNING" : "LAUNCH EXPERIMENT"}
-          </button>
-        </section>
+
+          <aside className="builder-launch-panel">
+            <section className="builder-section builder-launch">
+              <header><h2>LAUNCH</h2><p>The world is deterministic; agent output never sets world state.</p></header>
+              <div className="builder-launch-fields">
+                <label className="field-label">POLICY
+                  <select className="md3-select" value={policy} onChange={(e) => setPolicy(e.target.value as LaunchPolicy)}>
+                    <option value="fixture">fixture - deterministic</option>
+                    <option value="record">record - live LLM</option>
+                    <option value="locked">locked - replay only</option>
+                  </select>
+                </label>
+                <label className="field-label">MODEL (optional)
+                  <input className="md3-input" type="text" maxLength={100} disabled={!livePolicy} placeholder={livePolicy ? "uses GROUNDLINE_MODEL from .env if blank" : "only used for record / locked"} value={model} onChange={(e) => setModel(e.target.value)} />
+                </label>
+              </div>
+              <div className="builder-launch-summary">
+                <span><strong>{req.organization.agents.length}</strong> agents</span>
+                <span><strong>{Object.keys(req.treatments).length}</strong> treatments</span>
+                <span><strong>{req.seeds.length}</strong> seeds</span>
+              </div>
+              {errors.length > 0 && (
+                <p className="inline-error" role="alert"><Warning size={16} /> {errors[0]}{errors.length > 1 ? ` (and ${errors.length - 1} more)` : ""}</p>
+              )}
+              <button type="button" className="md3-button md3-button--filled" disabled={submitting || errors.length > 0} onClick={() => { void submit(); }}>
+                {submitting ? "RUNNING" : "LAUNCH EXPERIMENT"}
+              </button>
+            </section>
+          </aside>
+        </div>
       </main>
     </div>
   );

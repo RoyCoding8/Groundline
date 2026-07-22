@@ -23,6 +23,7 @@ export function SignalChart({ truth, belief }: { truth: Point[]; belief: Point[]
     <svg
       className="signal-chart"
       viewBox={`0 0 ${width} ${height}`}
+      preserveAspectRatio="xMidYMid meet"
       role="img"
       aria-label="World truth and executive belief over time"
     >
@@ -90,6 +91,7 @@ export function DistortionLadder({
     <svg
       className="ladder-chart"
       viewBox={`0 0 ${width} ${height}`}
+      preserveAspectRatio="xMidYMid meet"
       role="img"
       aria-label="Optimism bias by hierarchy level"
     >

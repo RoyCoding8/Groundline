@@ -12,6 +12,7 @@
     "test:e2e": "npm run build && playwright test"
   },
   "dependencies": {
+    "@material/web": "^2.3.0",
     "@phosphor-icons/react": "^2.1.10",
     "react": "^19.1.1",
     "react-dom": "^19.1.1"

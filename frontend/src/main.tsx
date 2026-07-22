@@ -1,5 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
+import "./md"; // registers @material/web (Material 3) custom elements
 import "./styles.css";
 import { App } from "./App";
 

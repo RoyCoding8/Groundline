@@ -16,9 +16,9 @@ export type InterventionValues = {
 };
 
 const POLICY_HELP: Record<InterventionValues["policy"], string> = {
-  fixture: "deterministic — no network call",
-  record: "live LLM — decisions captured to cache",
-  locked: "replay only — no network, fails on unseen context",
+  fixture: "deterministic -no network call",
+  record: "live LLM -decisions captured to cache",
+  locked: "replay only -no network, fails on unseen context",
 };
 
 export function InterventionControls({
@@ -55,9 +55,9 @@ export function InterventionControls({
       <label className="field-label">
         POLICY
         <select className="md3-select" name="policy" value={policy} onChange={(event) => setPolicy(event.target.value as InterventionValues["policy"])}>
-          <option value="fixture">fixture — deterministic</option>
-          <option value="record">record — live LLM</option>
-          <option value="locked">locked — replay only</option>
+          <option value="fixture">fixture -deterministic</option>
+          <option value="record">record -live LLM</option>
+          <option value="locked">locked -replay only</option>
         </select>
       </label>
       <label className="field-label">
@@ -128,7 +128,7 @@ export function DecisionInspector({
         <div>
           <h2 id="decisions-title">AGENT DECISIONS</h2>
           <p>
-            What each agent actually reported — policy <code>{POLICY_LABEL[policy] ?? policy.toUpperCase()}</code>.
+            What each agent actually reported -policy <code>{POLICY_LABEL[policy] ?? policy.toUpperCase()}</code>.
             {policy === "record" ? " Live LLM reasoning captured to cache." : policy === "locked" ? " Replayed from a locked cache." : " Deterministic fixture reasoning."}
           </p>
         </div>

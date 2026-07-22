@@ -1238,3 +1238,153 @@ code {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* ============================================================
+   EXPERIMENT BUILDER
+   ============================================================ */
+.builder-view {
+  padding: 0 48px 48px;
+}
+
+.builder-view .app-header {
+  padding-top: 24px;
+}
+
+.builder-presets {
+  display: flex;
+  align-items: end;
+  gap: 12px;
+}
+
+.builder-section {
+  padding: 24px 0;
+  border-top: 1px solid var(--md3-outline-variant);
+}
+
+.builder-section > header {
+  margin-bottom: 12px;
+}
+
+.builder-section > header h2 {
+  margin: 0;
+  font: var(--md3-type-title);
+}
+
+.builder-section > header p,
+.builder-section h3 {
+  margin: 4px 0 0;
+  font: var(--md3-type-body);
+  color: var(--md3-on-surface-variant);
+  max-width: 70ch;
+}
+
+.builder-section h3 {
+  margin-top: 16px;
+  font: var(--md3-type-label-large);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.builder-inline {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: end;
+}
+
+.builder-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 8px 0;
+}
+
+.builder-row {
+  border: 1px solid var(--md3-outline-variant);
+  border-radius: 10px;
+  padding: 10px 12px;
+  background: var(--md3-surface-container);
+}
+
+.builder-row-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 8px;
+  align-items: end;
+}
+
+.builder-remove {
+  justify-self: end;
+  align-self: end;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: none;
+  background: var(--md3-surface-container-highest);
+  color: var(--md3-on-surface-variant);
+  cursor: pointer;
+  font: var(--md3-type-label);
+}
+
+.builder-remove:hover {
+  background: var(--md3-error-container, #f9dedc);
+  color: var(--md3-on-error-container, #410e0b);
+}
+
+.builder-submap {
+  grid-column: 1 / -1;
+  margin-top: 6px;
+  padding-top: 8px;
+  border-top: 1px dashed var(--md3-outline-variant);
+}
+
+.builder-submap summary {
+  cursor: pointer;
+  font: var(--md3-type-label);
+  color: var(--md3-on-surface-variant);
+  margin-bottom: 6px;
+}
+
+.builder-map {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 8px 0;
+}
+
+.builder-map-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.builder-map-row code {
+  min-width: 120px;
+  font: var(--md3-type-data);
+  color: var(--md3-on-surface-variant);
+}
+
+.builder-map-row .md3-input {
+  width: 96px;
+}
+
+.builder-map-add {
+  display: flex;
+  align-items: end;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.builder-map-add .md3-input {
+  max-width: 220px;
+}
+
+.builder-launch .md3-button--filled {
+  margin-top: 12px;
+}
+
+@media (max-width: 720px) {
+  .builder-row-grid {
+    grid-template-columns: 1fr;
+  }
+}

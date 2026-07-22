@@ -8,6 +8,7 @@ import {
   Moon,
   Warning,
   CheckCircle,
+  PencilSimple,
 } from "@phosphor-icons/react";
 import {
   checkBackend,
@@ -21,6 +22,7 @@ import {
 } from "./api";
 import { DecisionInspector, EvidenceInspector, InterventionControls, type InterventionValues } from "./components";
 import { DistortionLadder, SignalChart } from "./charts";
+import { ExperimentBuilder } from "./builder/ExperimentBuilder";
 import type { DecisionNode, EvidenceNode, Experiment, JobStatus, RunDetail, TimelineEvent } from "./types";
 
 // ---------------------------------------------------------------------------
@@ -34,7 +36,7 @@ const isAbortError = (caught: unknown) => caught instanceof DOMException && caug
 // Types
 // ---------------------------------------------------------------------------
 
-type View = "dashboard" | "experiments" | "run";
+type View = "dashboard" | "experiments" | "builder" | "run";
 type BackendStatus = "checking" | "online" | "offline";
 type ExperimentStatus = "loading" | "loaded" | "empty" | "error";
 
@@ -118,6 +120,12 @@ function Sidebar({
             label="Experiments"
             active={view === "experiments"}
             onClick={() => { onNavigate("experiments"); onCloseMobile(); }}
+          />
+          <SidebarItem
+            icon={<PencilSimple size={20} weight={view === "builder" ? "fill" : "regular"} />}
+            label="Builder"
+            active={view === "builder"}
+            onClick={() => { onNavigate("builder"); onCloseMobile(); }}
           />
           <SidebarItem
             icon={<ChartLine size={20} weight={view === "run" ? "fill" : "regular"} />}
@@ -841,6 +849,20 @@ export function App() {
 
         {view === "experiments" && (
           <ExperimentsView onSelectExperiment={handleSelectExperiment} />
+        )}
+
+        {view === "builder" && (
+          <ExperimentBuilder
+            onLaunched={(completed, selectRunId) => {
+              setExperiment(completed);
+              chooseRun(selectRunId);
+              setView("run");
+            }}
+            setLaunchError={setLaunchError}
+            setJob={setJob}
+            setLaunchPolicy={setLaunchPolicy}
+            initialPolicy={launchPolicy}
+          />
         )}
 
         {view === "run" && (

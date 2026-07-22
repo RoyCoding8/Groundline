@@ -1,4 +1,5 @@
 import type {
+  BuilderExperimentRequest,
   DecisionNode,
   EvidenceNode,
   Experiment,
@@ -97,7 +98,7 @@ export function loadDecisions(
 }
 
 export function launchExperiment(
-  experiment: ExperimentRequest,
+  experiment: ExperimentRequest | BuilderExperimentRequest,
   policy: LaunchPolicy = "fixture",
   model = "",
 ): Promise<JobStatus> {
